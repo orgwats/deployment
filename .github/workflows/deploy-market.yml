@@ -5,8 +5,11 @@ on:
     types: [ deploy-market ]
 
 jobs:
-  build-deploy:
+  deploy-market:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
     steps:
       - name: Checkout Market Service Repository
         uses: actions/checkout@v4
@@ -16,7 +19,7 @@ jobs:
           path: market
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::976193225338:role/deployment
           aws-region: ap-northeast-2
@@ -28,7 +31,7 @@ jobs:
       - name: Build, tag, and push docker image to Amazon ECR
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: simplebank
+          REPOSITORY: market
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
