@@ -1,0 +1,16 @@
+name: Deploy Market Service
+
+on:
+  repository_dispatch:
+    types: [ deploy-market ]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Market Service Repository
+        uses: actions/checkout@v4
+        with:
+          repository: orgwats/market
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: market
