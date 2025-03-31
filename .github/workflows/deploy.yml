@@ -2,7 +2,7 @@ name: Deploy Market Service
 
 on:
   repository_dispatch:
-    types: [ deploy-market ]
+    types: [ deploy ]
 
 jobs:
   deploy-market:
