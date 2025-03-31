@@ -5,7 +5,7 @@ on:
     types: [ deploy ]
 
 jobs:
-  deploy-market:
+  deploy:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -37,11 +37,12 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ${{ github.event.client_payload.service }}
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-      - name: Pwd
-        run: pwd
-
-      - name: List files before tar
-        run: cd .. | ls
+      - name: Checkout Deployment Repository
+        uses: actions/checkout@v4
+        with:
+          repository: orgwats/deployment
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: deployment
 
       - name: Copy docker-compose.yml to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -49,5 +50,5 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "docker-compose.yml"
+          source: "deployment/docker-compose.yml"
           target: "~/"
