@@ -1,4 +1,4 @@
-name: Deploy Market Service
+name: Deploy Service
 
 on:
   repository_dispatch:
@@ -11,12 +11,12 @@ jobs:
       id-token: write
 
     steps:
-      - name: Checkout Market Service Repository
+      - name: Checkout Service Repository
         uses: actions/checkout@v4
         with:
-          repository: orgwats/market
+          repository: orgwats/${{ github.event.client_payload.service }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          path: market
+          path: ${{ github.event.client_payload.service }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -38,7 +38,7 @@ jobs:
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       - name: Copy docker-compose.yml to EC2
-        uses: appleboy/scp-action@v0.1.8
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
