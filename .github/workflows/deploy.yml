@@ -31,8 +31,17 @@ jobs:
       - name: Build, tag, and push docker image to Amazon ECR
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: orgwats/market
-          IMAGE_TAG: ${{ github.sha }}
+          REPOSITORY: orgwats/${{ github.event.client_payload.service }}
+          IMAGE_TAG: latest
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG market
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ${{ github.event.client_payload.service }}
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      - name: Copy docker-compose.yml to EC2
+        uses: appleboy/scp-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.yml"
+          target: "~/"
