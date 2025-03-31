@@ -37,6 +37,12 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ${{ github.event.client_payload.service }}
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
+      - name: Pwd
+        run: pwd
+
+      - name: List files before tar
+        run: cd .. | ls
+
       - name: Copy docker-compose.yml to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
