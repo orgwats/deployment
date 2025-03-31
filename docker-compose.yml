@@ -1,0 +1,24 @@
+services:
+  market:
+    image: 976193225338.dkr.ecr.ap-northeast-2.amazonaws.com/orgwats/market:latest
+    restart: always
+    ports:
+      - "50051:50051"
+    environment:
+      - ENV=production
+
+  analyzer:
+    image: 976193225338.dkr.ecr.ap-northeast-2.amazonaws.com/orgwats/analyzer:latest
+    restart: always
+    ports:
+      - "50052:50052"
+    environment:
+      - ENV=production
+
+  order:
+    image: 976193225338.dkr.ecr.ap-northeast-2.amazonaws.com/orgwats/order:latest
+    restart: always
+    ports:
+      - "50053:50053"
+    environment:
+      - ENV=production
