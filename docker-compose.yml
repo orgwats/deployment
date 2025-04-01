@@ -10,6 +10,7 @@ services:
 
   market-service:
     image: 976193225338.dkr.ecr.ap-northeast-2.amazonaws.com/orgwats/market:latest
+    container_name: market-service
     ports:
       - "50051:50051"
     depends_on:
@@ -17,6 +18,7 @@ services:
 
   analyzer-service:
     image: 976193225338.dkr.ecr.ap-northeast-2.amazonaws.com/orgwats/analyzer:latest
+    container_name: analyzer-service
     ports:
       - "50052:50052"
     depends_on:
@@ -33,7 +35,7 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
+      KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181 # kafka가 zookeeper에 커넥션하기 위한 대상을 지정
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
