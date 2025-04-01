@@ -7,16 +7,12 @@ services:
       MYSQL_DATABASE: binance
     ports:
       - "3306:3306"
-    networks:
-      - orgwats-network
 
   market-service:
     image: 976193225338.dkr.ecr.ap-northeast-2.amazonaws.com/orgwats/market:latest
     container_name: market-service
     ports:
       - "50051:50051"
-    networks:
-      - orgwats-network
     depends_on:
       - market-mysql
 
@@ -25,8 +21,6 @@ services:
     container_name: analyzer-service
     ports:
       - "50052:50052"
-    networks:
-      - orgwats-network
     depends_on:
       - kafka
 
@@ -35,22 +29,19 @@ services:
     container_name: zookeeper
     ports:
       - "2181:2181"
-    networks:
-      - orgwats-network
 
   kafka:
     image: wurstmeister/kafka
     container_name: kafka
     ports:
       - "9092:9092"
-    networks:
-      - orgwats-network
+    expose:
+      - "9093"      
     environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-
-networks:
-  orgwats-network:
-    driver: bridge
