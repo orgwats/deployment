@@ -20,6 +20,7 @@ services:
     image: 976193225338.dkr.ecr.ap-northeast-2.amazonaws.com/orgwats/analyzer:latest
     container_name: analyzer-service
     ports:
+      - "8080:8080"
       - "50052:50052"
 
   order-service:
