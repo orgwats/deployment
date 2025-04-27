@@ -23,7 +23,7 @@ jobs:
       # 2. Config 가져오기
       - name: Fetch Config from Lambda
         run: |
-          curl -s "${{ secrets.CONFIG_API_URL }}/config" -o deployment/config.json
+          curl -s "${{ secrets.CONFIG_API_URL }}/config" -o config.json
 
 
       # 3. Install yq and jq
