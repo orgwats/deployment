@@ -51,13 +51,18 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: deployment
 
-      # 6. yq 설치
+      # 6. Config 가져오기
+      - name: Fetch Config from Lambda
+        run: |
+          curl -s "${{ secrets.CONFIG_API_URL }}/config" -o deployment/config.json
+
+      # 7. yq 설치
       - name: Install yq
         run: |
           sudo wget https://github.com/mikefarah/yq/releases/download/v4.35.2/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
 
-      # 7. AWS/GCP 분기 결정
+      # 8. AWS/GCP 분기 결정
       - name: Determine Deployment Target
         id: determine-target
         run: |
