@@ -11,6 +11,7 @@ jobs:
       id-token: write
 
     steps:
+      # 1. 서비스 레포 체크아웃
       - name: Checkout Service Repository
         uses: actions/checkout@v4
         with:
@@ -18,16 +19,19 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: ${{ github.event.client_payload.service }}
 
+      # 2. AWS 인증
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::976193225338:role/deployment
           aws-region: ap-northeast-2
 
+      # 3. ECR 로그인
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      # 4. Docker Build & Push
       - name: Build, tag, and push docker image to Amazon ECR
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -37,6 +41,7 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ${{ github.event.client_payload.service }}
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
+      # 5. Deployment 레포 체크아웃
       - name: Checkout Deployment Repository
         uses: actions/checkout@v4
         with:
@@ -44,11 +49,30 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: deployment
 
-      - name: Copy docker-compose.yml to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "deployment/docker-compose.yml"
-          target: "~/"
+      # 6. yq 설치
+      - name: Install yq
+        run: sudo apt-get update && sudo apt-get install -y yq
+
+      # 7. AWS/GCP 분기 결정
+      - name: Determine Deployment Target
+        id: determine-target
+        run: |
+          SERVICE_NAME=${{ github.event.client_payload.service }}
+          AWS_SERVICES=$(yq e '.aws[]' deployment/config.yml)
+          GCP_SERVICES=$(yq e '.gcp[]' deployment/config.yml)
+
+          if echo "$AWS_SERVICES" | grep -wq "$SERVICE_NAME"; then
+            echo "target=aws" >> $GITHUB_OUTPUT
+          elif echo "$GCP_SERVICES" | grep -wq "$SERVICE_NAME"; then
+            echo "target=gcp" >> $GITHUB_OUTPUT
+          else
+            echo "Error: Service $SERVICE_NAME not found in config.yml"
+            exit 1
+          fi
+
+  deploy-platform:
+    needs: deploy
+    uses: orgwats/deployment/.github/workflows/${{ needs.deploy.outputs.target }}.yml@main
+    with:
+      service: ${{ github.event.client_payload.service }}
+    secrets: inherit
