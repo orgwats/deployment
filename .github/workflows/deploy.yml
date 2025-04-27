@@ -70,9 +70,18 @@ jobs:
             exit 1
           fi
 
-  deploy-platform:
+  deploy-aws:
     needs: deploy
-    uses: orgwats/deployment/.github/workflows/${{ needs.deploy.outputs.target }}.yml@main
+    if: needs.deploy.outputs.target == 'aws'
+    uses: orgwats/deployment/.github/workflows/aws.yml@main
+    with:
+      service: ${{ github.event.client_payload.service }}
+    secrets: inherit
+
+  deploy-gcp:
+    needs: deploy
+    if: needs.deploy.outputs.target == 'gcp'
+    uses: orgwats/deployment/.github/workflows/gcp.yml@main
     with:
       service: ${{ github.event.client_payload.service }}
     secrets: inherit
