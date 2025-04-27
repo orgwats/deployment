@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
+    outputs:
+      target: ${{ steps.determine-target.outputs.target }}      
 
     steps:
       # 1. 서비스 레포 체크아웃
