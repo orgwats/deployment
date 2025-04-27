@@ -51,7 +51,9 @@ jobs:
 
       # 6. yq 설치
       - name: Install yq
-        run: sudo apt-get update && sudo apt-get install -y yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.35.2/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
 
       # 7. AWS/GCP 분기 결정
       - name: Determine Deployment Target
@@ -70,7 +72,7 @@ jobs:
             exit 1
           fi
 
-  deploy-aws:
+  aws:
     needs: deploy
     if: needs.deploy.outputs.target == 'aws'
     uses: orgwats/deployment/.github/workflows/aws.yml@main
@@ -78,7 +80,7 @@ jobs:
       service: ${{ github.event.client_payload.service }}
     secrets: inherit
 
-  deploy-gcp:
+  gcp:
     needs: deploy
     if: needs.deploy.outputs.target == 'gcp'
     uses: orgwats/deployment/.github/workflows/gcp.yml@main
