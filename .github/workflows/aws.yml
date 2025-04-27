@@ -20,14 +20,20 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: deployment
 
-      # 2. Install yq and jq
+      # 2. Config 가져오기
+      - name: Fetch Config from Lambda
+        run: |
+          curl -s "${{ secrets.CONFIG_API_URL }}/config" -o deployment/config.json
+
+
+      # 3. Install yq and jq
       - name: Install yq and jq
         run: |
           sudo wget https://github.com/mikefarah/yq/releases/download/v4.35.2/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
           sudo apt-get update && sudo apt-get install -y jq
 
-      # 3. Generate docker-compose.yml
+      # 4. Generate docker-compose.yml
       - name: Generate docker-compose.yml
         run: |
           chmod +x deployment/scripts/generate-compose.sh
