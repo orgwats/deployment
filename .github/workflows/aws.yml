@@ -10,6 +10,26 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: AWS Deploy Test
-        run: echo "AWS Deploy"
+      # 1. Deployment 레포 체크아웃
+      - name: Checkout Deployment Repository
+        uses: actions/checkout@v4
+        with:
+          repository: orgwats/deployment
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: deployment
+
+      # 2. Install yq and jq
+      - name: Install yq and jq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.35.2/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
+          sudo apt-get update && sudo apt-get install -y jq
+
+      # 3. Generate docker-compose.yml
+      - name: Generate docker-compose.yml
+        run: |
+          chmod +x deployment/scripts/generate-compose.sh
+          ./deployment/scripts/generate-compose.sh aws
+          cat deployment/docker-compose.yml
