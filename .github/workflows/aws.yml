@@ -1,0 +1,15 @@
+name: AWS Deploy
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: AWS Deploy Test
+        run: echo "AWS Deploy"

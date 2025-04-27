@@ -1,0 +1,15 @@
+name: GCP Deploy
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: GCP Deploy Test
+        run: echo "GCP Deploy"
