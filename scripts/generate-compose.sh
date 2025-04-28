@@ -2,7 +2,7 @@
 set -e
 
 TARGET=$1 # aws 또는 gcp
-ROOT_DIR=$(dirname "$(dirname "$(realpath "$0")")") # 스크립트 기준으로 상위
+ROOT_DIR=..
 CONFIG_FILE="${ROOT_DIR}/config.yml"
 CONFIG_JSON="${ROOT_DIR}/config.json"
 ENV_FILE="${ROOT_DIR}/.env"
