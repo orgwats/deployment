@@ -1,7 +1,7 @@
 aws:
   - market
-  - analyzer
-  - order
+  # - analyzer
+  # - order
 
 gcp:
   - gateway
