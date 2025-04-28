@@ -36,6 +36,8 @@ jobs:
       # 4. Generate docker-compose.yml
       - name: Generate docker-compose.yml
         run: |
+          ls -al
+          pwd
           chmod +x deployment/scripts/generate-compose.sh
           ./deployment/scripts/generate-compose.sh aws
           cat deployment/docker-compose.yml
