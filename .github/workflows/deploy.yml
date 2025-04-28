@@ -33,16 +33,21 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 4. Docker Build & Push
-      - name: Build, tag, and push docker image to Amazon ECR
+      # 4. Docker Buildx & Push
+      - name: Build, tag, and push multi-arch docker image to Amazon ECR
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: orgwats/${{ github.event.client_payload.service }}
           IMAGE_TAG: latest
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ${{ github.event.client_payload.service }}
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker buildx create --use
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg PERSONAL_ACCESS_TOKEN=${PERSONAL_ACCESS_TOKEN} \
+            -t $REGISTRY/$REPOSITORY:$IMAGE_TAG \
+            ${{ github.event.client_payload.service }} \
+            --push
 
       # 5. Deployment 레포 체크아웃
       - name: Checkout Deployment Repository
