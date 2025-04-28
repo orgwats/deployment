@@ -2,6 +2,7 @@
 set -e
 
 TARGET=$1 # aws 또는 gcp
+CONFIG_API_URL=$2
 CONFIG_FILE="config.yml"
 CONFIG_JSON="config.json"
 ENV_FILE=".env"
@@ -51,6 +52,8 @@ for service in $SERVICE_LIST; do
   cat <<EOF >> "$DOCKER_COMPOSE_FILE"
   ${service}-service:
     image: ${DOCKER_REGISTRY}/orgwats/${service}:latest
+    environment:
+      CONFIG_API_URL: ${CONFIG_API_URL}
     container_name: ${service}-service
     ports:
       - "${port}:${port}"

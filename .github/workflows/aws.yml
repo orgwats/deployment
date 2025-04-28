@@ -38,7 +38,7 @@ jobs:
         run: |
           cd deployment
           chmod +x scripts/generate-compose.sh
-          ./scripts/generate-compose.sh aws
+          ./scripts/generate-compose.sh aws ${{ secrets.CONFIG_API_URL }}
 
       # 5. docker-compose.yml 배포
       - name: Copy docker-compose.yml to EC2
