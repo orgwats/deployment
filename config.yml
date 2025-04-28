@@ -3,3 +3,4 @@ aws:
 
 gcp:
   - market
+  - gateway
