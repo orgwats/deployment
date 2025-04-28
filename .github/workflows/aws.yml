@@ -23,7 +23,7 @@ jobs:
       # 2. Config 가져오기
       - name: Fetch Config from Lambda
         run: |
-          curl -s "${{ secrets.CONFIG_API_URL }}/config" -o config.json
+          curl -s "${{ secrets.CONFIG_API_URL }}/config" -o deployment/config.json
 
 
       # 3. Install yq and jq
@@ -36,8 +36,7 @@ jobs:
       # 4. Generate docker-compose.yml
       - name: Generate docker-compose.yml
         run: |
-          ls -al deployment
-          pwd
-          chmod +x deployment/scripts/generate-compose.sh
-          ./deployment/scripts/generate-compose.sh aws
-          cat deployment/docker-compose.yml
+          cd deployment
+          chmod +x scripts/generate-compose.sh
+          ./scripts/generate-compose.sh aws
+          cat docker-compose.yml
