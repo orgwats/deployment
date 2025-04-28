@@ -13,35 +13,35 @@ jobs:
       target: ${{ steps.determine-target.outputs.target }}      
 
     steps:
-      # # 1. 서비스 레포 체크아웃
-      # - name: Checkout Service Repository
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: orgwats/${{ github.event.client_payload.service }}
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     path: ${{ github.event.client_payload.service }}
+      # 1. 서비스 레포 체크아웃
+      - name: Checkout Service Repository
+        uses: actions/checkout@v4
+        with:
+          repository: orgwats/${{ github.event.client_payload.service }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ github.event.client_payload.service }}
 
-      # # 2. AWS 인증
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     role-to-assume: arn:aws:iam::976193225338:role/deployment
-      #     aws-region: ap-northeast-2
+      # 2. AWS 인증
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::976193225338:role/deployment
+          aws-region: ap-northeast-2
 
-      # # 3. ECR 로그인
-      # - name: Login to Amazon ECR
-      #   id: login-ecr
-      #   uses: aws-actions/amazon-ecr-login@v2
+      # 3. ECR 로그인
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-      # # 4. Docker Build & Push
-      # - name: Build, tag, and push docker image to Amazon ECR
-      #   env:
-      #     REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     REPOSITORY: orgwats/${{ github.event.client_payload.service }}
-      #     IMAGE_TAG: latest
-      #   run: |
-      #     docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ${{ github.event.client_payload.service }}
-      #     docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      # 4. Docker Build & Push
+      - name: Build, tag, and push docker image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: orgwats/${{ github.event.client_payload.service }}
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ${{ github.event.client_payload.service }}
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       # 5. Deployment 레포 체크아웃
       - name: Checkout Deployment Repository
