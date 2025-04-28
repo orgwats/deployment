@@ -47,27 +47,23 @@ jobs:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
-          source: "deployment/docker-compose.yml"
+          source: |
+            deployment/docker-compose.yml,
+            deployment/.env
           target: "~/"
 
-      # 6. Load .env
-      - name: Load .env
-        run: |
-          set -o allexport
-          source deployment/.env
-          set +o allexport
-
-      # 7. docker-compose.yml 실행
+      # 6. docker-compose.yml 실행
       - name: Deploy docker-compose on EC2
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
-          envs: DOCKER_REGISTRY
           script: |
-            export DOCKER_REGISTRY=${DOCKER_REGISTRY}
-            echo "Using DOCKER_REGISTRY=$DOCKER_REGISTRY"
+            cd ~
+            set -o allexport
+            source .env
+            set +o allexport
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $DOCKER_REGISTRY
             docker-compose pull
             docker-compose up -d
