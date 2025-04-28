@@ -50,7 +50,7 @@ for service in $SERVICE_LIST; do
 
   cat <<EOF >> "$DOCKER_COMPOSE_FILE"
   ${service}-service:
-    image: ${DOCKER_REGISTRY}/${service}:latest
+    image: ${DOCKER_REGISTRY}/orgwats/${service}:latest
     container_name: ${service}-service
     ports:
       - "${port}:${port}"
