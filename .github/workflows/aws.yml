@@ -40,12 +40,33 @@ jobs:
           chmod +x scripts/generate-compose.sh
           ./scripts/generate-compose.sh aws
 
-      # 5. EC2 docker-compose.yml 배포
+      # 5. docker-compose.yml 배포
       - name: Copy docker-compose.yml to EC2
         uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USER }}
+          key: ${{ secrets.AWS_EC2_SSH_KEY }}
+          source: "deployment/docker-compose.yml"
+          target: "~/"
+
+      # 6. Load .env
+      - name: Load .env
+        run: |
+          set -o allexport
+          source deployment/.env
+          set +o allexport
+
+      # 7. docker-compose.yml 실행
+      - name: Deploy docker-compose on EC2
+        uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "deployment/docker-compose.yml"
-          target: "~/"
+          script: |
+            cd ~
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $DOCKER_REGISTRY
+            docker compose pull
+            docker compose up -d
+          envs: DOCKER_REGISTRY
