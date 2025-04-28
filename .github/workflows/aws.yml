@@ -25,7 +25,6 @@ jobs:
         run: |
           curl -s "${{ secrets.CONFIG_API_URL }}/config" -o deployment/config.json
 
-
       # 3. Install yq and jq
       - name: Install yq and jq
         run: |

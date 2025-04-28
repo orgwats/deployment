@@ -10,6 +10,57 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: GCP Deploy Test
-        run: echo "GCP Deploy"
+      # 1. Deployment 레포 체크아웃
+      - name: Checkout Deployment Repository
+        uses: actions/checkout@v4
+        with:
+          repository: orgwats/deployment
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: deployment
+
+      # 2. Config 가져오기
+      - name: Fetch Config from Lambda
+        run: |
+          curl -s "${{ secrets.CONFIG_API_URL }}/config" -o deployment/config.json
+
+      # 3. Install yq and jq
+      - name: Install yq and jq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.35.2/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
+          sudo apt-get update && sudo apt-get install -y jq
+
+      # 4. Generate docker-compose.yml
+      - name: Generate docker-compose.yml
+        run: |
+          cd deployment
+          chmod +x scripts/generate-compose.sh
+          ./scripts/generate-compose.sh gcp ${{ secrets.CONFIG_API_URL }}
+
+      # 5. docker-compose.yml 배포
+      - name: Copy docker-compose.yml to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.GCP_VM_HOST }}
+          username: ${{ secrets.GCP_VM_USER }}
+          key: ${{ secrets.GCP_VM_SSH_KEY }}
+          source: deployment/docker-compose.yml, deployment/.env
+          target: "~/"
+
+      # 6. docker-compose.yml 실행
+      - name: Deploy docker-compose on VM
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.GCP_VM_HOST }}
+          username: ${{ secrets.GCP_VM_USER }}
+          key: ${{ secrets.GCP_VM_SSH_KEY }}
+          script: |
+            cd deployment
+            set -o allexport
+            source .env
+            set +o allexport
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $DOCKER_REGISTRY
+            docker-compose pull
+            docker-compose up -d --remove-orphans
