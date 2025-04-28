@@ -2,11 +2,10 @@
 set -e
 
 TARGET=$1 # aws 또는 gcp
-ROOT_DIR=..
-CONFIG_FILE="${ROOT_DIR}/config.yml"
-CONFIG_JSON="${ROOT_DIR}/config.json"
-ENV_FILE="${ROOT_DIR}/.env"
-DOCKER_COMPOSE_FILE="${ROOT_DIR}/docker-compose.yml"
+CONFIG_FILE="config.yml"
+CONFIG_JSON="../config.json"
+ENV_FILE=".env"
+DOCKER_COMPOSE_FILE="docker-compose.yml"
 
 if [ -z "$TARGET" ]; then
   echo "Usage: $0 <aws|gcp>"
