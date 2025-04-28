@@ -3,7 +3,7 @@ set -e
 
 TARGET=$1 # aws 또는 gcp
 CONFIG_FILE="config.yml"
-CONFIG_JSON="../config.json"
+CONFIG_JSON="config.json"
 ENV_FILE=".env"
 DOCKER_COMPOSE_FILE="docker-compose.yml"
 
