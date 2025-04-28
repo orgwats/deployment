@@ -13,13 +13,13 @@ jobs:
       target: ${{ steps.determine-target.outputs.target }}      
 
     steps:
-      # # 1. 서비스 레포 체크아웃
-      # - name: Checkout Service Repository
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: orgwats/${{ github.event.client_payload.service }}
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     path: ${{ github.event.client_payload.service }}
+      # 1. 서비스 레포 체크아웃
+      - name: Checkout Service Repository
+        uses: actions/checkout@v4
+        with:
+          repository: orgwats/${{ github.event.client_payload.service }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ github.event.client_payload.service }}
 
       # # 2. AWS 인증
       # - name: Configure AWS credentials
