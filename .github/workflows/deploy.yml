@@ -13,66 +13,66 @@ jobs:
       target: ${{ steps.determine-target.outputs.target }}      
 
     steps:
-      # 1. 서비스 레포 체크아웃
-      - name: Checkout Service Repository
-        uses: actions/checkout@v4
-        with:
-          repository: orgwats/${{ github.event.client_payload.service }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          path: ${{ github.event.client_payload.service }}
+      # # 1. 서비스 레포 체크아웃
+      # - name: Checkout Service Repository
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: orgwats/${{ github.event.client_payload.service }}
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     path: ${{ github.event.client_payload.service }}
 
-      # 2. AWS 인증
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::976193225338:role/deployment
-          aws-region: ap-northeast-2
+      # # 2. AWS 인증
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     role-to-assume: arn:aws:iam::976193225338:role/deployment
+      #     aws-region: ap-northeast-2
 
-      # 3. ECR 로그인
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      # # 3. ECR 로그인
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
 
-      # 4. Docker Build & Push
-      - name: Build, tag, and push docker image to Amazon ECR
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: orgwats/${{ github.event.client_payload.service }}
-          IMAGE_TAG: latest
-        run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ${{ github.event.client_payload.service }}
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      # # 4. Docker Build & Push
+      # - name: Build, tag, and push docker image to Amazon ECR
+      #   env:
+      #     REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     REPOSITORY: orgwats/${{ github.event.client_payload.service }}
+      #     IMAGE_TAG: latest
+      #   run: |
+      #     docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ${{ github.event.client_payload.service }}
+      #     docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-      # 5. Deployment 레포 체크아웃
-      - name: Checkout Deployment Repository
-        uses: actions/checkout@v4
-        with:
-          repository: orgwats/deployment
-          token: ${{ secrets.GITHUB_TOKEN }}
-          path: deployment
+      # # 5. Deployment 레포 체크아웃
+      # - name: Checkout Deployment Repository
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: orgwats/deployment
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     path: deployment
 
-      # 6. yq 설치
-      - name: Install yq
-        run: |
-          sudo wget https://github.com/mikefarah/yq/releases/download/v4.35.2/yq_linux_amd64 -O /usr/local/bin/yq
-          sudo chmod +x /usr/local/bin/yq
+      # # 6. yq 설치
+      # - name: Install yq
+      #   run: |
+      #     sudo wget https://github.com/mikefarah/yq/releases/download/v4.35.2/yq_linux_amd64 -O /usr/local/bin/yq
+      #     sudo chmod +x /usr/local/bin/yq
 
-      # 7. AWS/GCP 분기 결정
-      - name: Determine Deployment Target
-        id: determine-target
-        run: |
-          SERVICE_NAME=${{ github.event.client_payload.service }}
-          AWS_SERVICES=$(yq e '.aws[]' deployment/config.yml)
-          GCP_SERVICES=$(yq e '.gcp[]' deployment/config.yml)
+      # # 7. AWS/GCP 분기 결정
+      # - name: Determine Deployment Target
+      #   id: determine-target
+      #   run: |
+      #     SERVICE_NAME=${{ github.event.client_payload.service }}
+      #     AWS_SERVICES=$(yq e '.aws[]' deployment/config.yml)
+      #     GCP_SERVICES=$(yq e '.gcp[]' deployment/config.yml)
 
-          if echo "$AWS_SERVICES" | grep -wq "$SERVICE_NAME"; then
-            echo "target=aws" >> $GITHUB_OUTPUT
-          elif echo "$GCP_SERVICES" | grep -wq "$SERVICE_NAME"; then
-            echo "target=gcp" >> $GITHUB_OUTPUT
-          else
-            echo "Error: Service $SERVICE_NAME not found in config.yml"
-            exit 1
-          fi
+      #     if echo "$AWS_SERVICES" | grep -wq "$SERVICE_NAME"; then
+      #       echo "target=aws" >> $GITHUB_OUTPUT
+      #     elif echo "$GCP_SERVICES" | grep -wq "$SERVICE_NAME"; then
+      #       echo "target=gcp" >> $GITHUB_OUTPUT
+      #     else
+      #       echo "Error: Service $SERVICE_NAME not found in config.yml"
+      #       exit 1
+      #     fi
 
   aws:
     needs: deploy
