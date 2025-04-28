@@ -58,10 +58,4 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
           script: |
-            cd ~
-            set -o allexport
-            source .env
-            set +o allexport
-            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $DOCKER_REGISTRY
-            docker-compose pull
-            docker-compose up -d
+            ls
