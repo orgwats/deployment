@@ -13,13 +13,13 @@ jobs:
       target: ${{ steps.determine-target.outputs.target }}      
 
     steps:
-      # 1. 서비스 레포 체크아웃
-      - name: Checkout Service Repository
-        uses: actions/checkout@v4
-        with:
-          repository: orgwats/${{ github.event.client_payload.service }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          path: ${{ github.event.client_payload.service }}
+      # # 1. 서비스 레포 체크아웃
+      # - name: Checkout Service Repository
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: orgwats/${{ github.event.client_payload.service }}
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     path: ${{ github.event.client_payload.service }}
 
       # # 2. AWS 인증
       # - name: Configure AWS credentials
@@ -57,22 +57,22 @@ jobs:
       #     sudo wget https://github.com/mikefarah/yq/releases/download/v4.35.2/yq_linux_amd64 -O /usr/local/bin/yq
       #     sudo chmod +x /usr/local/bin/yq
 
-      # # 7. AWS/GCP 분기 결정
-      # - name: Determine Deployment Target
-      #   id: determine-target
-      #   run: |
-      #     SERVICE_NAME=${{ github.event.client_payload.service }}
-      #     AWS_SERVICES=$(yq e '.aws[]' deployment/config.yml)
-      #     GCP_SERVICES=$(yq e '.gcp[]' deployment/config.yml)
+      # 7. AWS/GCP 분기 결정
+      - name: Determine Deployment Target
+        id: determine-target
+        run: |
+          SERVICE_NAME=${{ github.event.client_payload.service }}
+          AWS_SERVICES=$(yq e '.aws[]' deployment/config.yml)
+          GCP_SERVICES=$(yq e '.gcp[]' deployment/config.yml)
 
-      #     if echo "$AWS_SERVICES" | grep -wq "$SERVICE_NAME"; then
-      #       echo "target=aws" >> $GITHUB_OUTPUT
-      #     elif echo "$GCP_SERVICES" | grep -wq "$SERVICE_NAME"; then
-      #       echo "target=gcp" >> $GITHUB_OUTPUT
-      #     else
-      #       echo "Error: Service $SERVICE_NAME not found in config.yml"
-      #       exit 1
-      #     fi
+          if echo "$AWS_SERVICES" | grep -wq "$SERVICE_NAME"; then
+            echo "target=aws" >> $GITHUB_OUTPUT
+          elif echo "$GCP_SERVICES" | grep -wq "$SERVICE_NAME"; then
+            echo "target=gcp" >> $GITHUB_OUTPUT
+          else
+            echo "Error: Service $SERVICE_NAME not found in config.yml"
+            exit 1
+          fi
 
   aws:
     needs: deploy
