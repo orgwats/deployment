@@ -48,7 +48,7 @@ jobs:
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
           source: |
-            deployment/docker-compose.yml,
+            deployment/docker-compose.yml
             deployment/.env
           target: "~/"
 
