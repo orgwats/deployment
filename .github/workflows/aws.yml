@@ -64,9 +64,10 @@ jobs:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USER }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
+          envs: DOCKER_REGISTRY
           script: |
-            cd ~
+            export DOCKER_REGISTRY=${DOCKER_REGISTRY}
+            echo "Using DOCKER_REGISTRY=$DOCKER_REGISTRY"
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $DOCKER_REGISTRY
             docker-compose pull
             docker-compose up -d
-          envs: DOCKER_REGISTRY
